@@ -83,3 +83,4 @@ tools/docker/or-tools.snk
 emscripten
 wasmbuild
 wasmpoc
+hostbuild
