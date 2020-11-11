@@ -1,5 +1,8 @@
 # Add pthread support
-add_compile_options(-pthread);
+option(PTHREAD ON)
+if(PTHREAD)
+    add_compile_options(-pthread);
+endif()
 
 # This file is just an orchestration
 cmake_minimum_required(VERSION 3.14)

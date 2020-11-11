@@ -31,5 +31,5 @@ pushd wasmbuild
 
     # Start the actual build.
     echo "Building project ..."
-    make -j 64 install
+    make install
 popd
