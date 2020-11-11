@@ -9,7 +9,7 @@ set(protobuf_MSVC_STATIC_RUNTIME OFF)
 FetchContent_Declare(
     host_protobuf
     GIT_REPOSITORY "https://github.com/protocolbuffers/protobuf.git"
-    GIT_TAG "v3.12.2"
+    GIT_TAG "v3.13.0"
     SOURCE_SUBDIR cmake)
 FetchContent_MakeAvailable(host_protobuf)
 

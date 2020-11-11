@@ -9,5 +9,5 @@ fi
 cmake -S hosttools -B hostbuild -DCMAKE_INSTALL_PREFIX=./hostbuild/install
 # Hop into the 'build' folder to start our CMake build.
 pushd hostbuild
-    make
+    make -j 16
 popd

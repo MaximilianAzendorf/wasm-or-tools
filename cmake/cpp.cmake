@@ -94,12 +94,10 @@ endif()
 # Check optional Dependencies
 if(USE_CPLEX)
   find_package(CPLEX REQUIRED)
-  set(CPLEX_DEP CPLEX::CPLEX)
 endif()
 
 if(USE_XPRESS)
   find_package(XPRESS REQUIRED)
-  set(XPRESS_DEP XPRESS::XPRESS)
 endif()
 
 # Main Target
@@ -186,11 +184,11 @@ target_include_directories(${PROJECT_NAME} INTERFACE
 
 # Compile options
 set_target_properties(${PROJECT_NAME} PROPERTIES
-  CXX_STANDARD 11
+  CXX_STANDARD 17
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF
   )
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${OR_TOOLS_COMPILE_DEFINITIONS})
 target_compile_options(${PROJECT_NAME} PUBLIC ${OR_TOOLS_COMPILE_OPTIONS})
 
@@ -219,10 +217,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   gflags::gflags
   glog::glog
   protobuf::libprotobuf
-  libscip
   ${COINOR_DEPS}
-  ${CPLEX_DEP}
-  ${XPRESS_DEP}
+  $<$<BOOL:${USE_SCIP}>:libscip>
+  $<$<BOOL:${USE_CPLEX}>:CPLEX::CPLEX>
+  $<$<BOOL:${USE_XPRESS}>:XPRESS::XPRESS>
   Threads::Threads)
 if(WIN32)
   target_link_libraries(${PROJECT_NAME} PUBLIC psapi.lib ws2_32.lib)
@@ -249,7 +247,7 @@ file(GLOB_RECURSE proto_files RELATIVE ${PROJECT_SOURCE_DIR}
 ## Get Protobuf include dir
 get_target_property(protobuf_dirs protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
 foreach(dir IN LISTS protobuf_dirs)
-  if ("${dir}" MATCHES "BUILD_INTERFACE")
+  if (NOT "${dir}" MATCHES "INSTALL_INTERFACE|-NOTFOUND")
     message(STATUS "Adding proto path: ${dir}")
     list(APPEND PROTO_DIRS "--proto_path=${dir}")
   endif()
@@ -297,7 +295,7 @@ endforeach()
 #add_library(${PROJECT_NAME}_proto STATIC ${PROTO_SRCS} ${PROTO_HDRS})
 add_library(${PROJECT_NAME}_proto OBJECT ${PROTO_SRCS} ${PROTO_HDRS})
 set_target_properties(${PROJECT_NAME}_proto PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(${PROJECT_NAME}_proto PROPERTIES CXX_STANDARD 11)
+set_target_properties(${PROJECT_NAME}_proto PROPERTIES CXX_STANDARD 17)
 set_target_properties(${PROJECT_NAME}_proto PROPERTIES CXX_STANDARD_REQUIRED ON)
 set_target_properties(${PROJECT_NAME}_proto PROPERTIES CXX_EXTENSIONS OFF)
 target_include_directories(${PROJECT_NAME}_proto PRIVATE
@@ -324,14 +322,8 @@ foreach(SUBPROJECT IN ITEMS
   add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}::${SUBPROJECT})
 endforeach()
 
-# Examples
-if(BUILD_EXAMPLES)
-  add_subdirectory(examples/cpp)
-endif()
-
 # Install rules
 include(GNUInstallDirs)
-
 include(GenerateExportHeader)
 GENERATE_EXPORT_HEADER(${PROJECT_NAME})
 install(FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}_export.h
@@ -376,3 +368,39 @@ install(
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
   COMPONENT Devel)
+
+
+# add_cxx_sample()
+# CMake function to generate and build C++ sample.
+# Parameters:
+#  the C++ filename
+# e.g.:
+# add_cxx_sample(foo.cc)
+function(add_cxx_sample FILE_NAME)
+  message(STATUS "Building ${FILE_NAME}: ...")
+  get_filename_component(SAMPLE_NAME ${FILE_NAME} NAME_WE)
+  get_filename_component(SAMPLE_DIR ${FILE_NAME} DIRECTORY)
+  get_filename_component(COMPONENT_DIR ${SAMPLE_DIR} DIRECTORY)
+  get_filename_component(COMPONENT_NAME ${COMPONENT_DIR} NAME)
+
+  if(APPLE)
+    set(CMAKE_INSTALL_RPATH
+      "@loader_path/../${CMAKE_INSTALL_LIBDIR};@loader_path")
+  elseif(UNIX)
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}:$ORIGIN")
+  endif()
+
+  add_executable(${SAMPLE_NAME} ${FILE_NAME})
+  target_include_directories(${SAMPLE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+  target_compile_features(${SAMPLE_NAME} PRIVATE cxx_std_17)
+  target_link_libraries(${SAMPLE_NAME} PRIVATE ortools::ortools)
+
+  include(GNUInstallDirs)
+  install(TARGETS ${EXECUTABLE})
+
+  if(BUILD_TESTING)
+    add_test(NAME cxx_${COMPONENT_NAME}_${SAMPLE_NAME} COMMAND ${SAMPLE_NAME})
+  endif()
+
+  message(STATUS "Building ${FILE_NAME}: ...DONE")
+endfunction()
