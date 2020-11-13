@@ -18,7 +18,6 @@ popd
 
 # Hop into the 'build' folder to start our CMake build.
 pushd wasmbuild
-
     EMSCRIPTEN=${EMSDK}/upstream/emscripten
 	
     # Because we sourced the Emscripten environment variables, we can use the 'EMSCRIPTEN' var to know where the current SDK can be found, which we need so we can locate the 'Emscripten.cmake' toolchain file.
@@ -26,7 +25,7 @@ pushd wasmbuild
 
     # We ask CMake to configure itself against the parent folder, but unlike our other platform targets, we will tell CMake to use the Emscripten CMake toolchain which knows how to perform Emscripten builds.
     echo "Emscripten CMake path: ${EMSCRIPTEN_CMAKE_PATH}"
-    cmake -DCMAKE_TOOLCHAIN_FILE=${EMSCRIPTEN_CMAKE_PATH} .. -DBUILD_DEPS=ON -DBUILD_SAMPLES=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=./install
+    cmake -DCMAKE_TOOLCHAIN_FILE=${EMSCRIPTEN_CMAKE_PATH} .. -DPTHREAD=ON -DBUILD_DEPS=ON -DBUILD_SAMPLES=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=./install
     # cmake -DCMAKE_TOOLCHAIN_FILE=${EMSCRIPTEN_CMAKE_PATH} .. -DBUILD_DEPS=OFF -DBUILD_ZLIB=ON -DBUILD_glog=ON -DBUILD_SAMPLES=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF
 
     # Start the actual build.
