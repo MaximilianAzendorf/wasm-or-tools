@@ -446,11 +446,11 @@ MPSolver::ResultStatus CLPInterface::Solve(const MPSolverParameters& param) {
     // Start from a fresh set of default parameters and set them to
     // specified values.
     options_ = absl::make_unique<ClpSolve>();
-    options_->setSpecialOption(2, 1);
     SetParameters(param);
 
     // Solve
     timer.Restart();
+    options_->setSpecialOption(2, 1);
     clp_->initialSolve(*options_);
     VLOG(1) << absl::StrFormat("Solved in %.3f seconds.", timer.Get());
 
