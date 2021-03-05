@@ -446,6 +446,7 @@ MPSolver::ResultStatus CLPInterface::Solve(const MPSolverParameters& param) {
     // Start from a fresh set of default parameters and set them to
     // specified values.
     options_ = absl::make_unique<ClpSolve>();
+    options_->setSpecialOption(2, 1);
     SetParameters(param);
 
     // Solve
