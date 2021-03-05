@@ -1,0 +1,8 @@
+905c905
+<     saveSignal = signal(SIGINT, signal_handler);
+---
+>     // saveSignal = signal(SIGINT, signal_handler);
+3888c3888
+<     signal(SIGINT, saveSignal);
+---
+>     // signal(SIGINT, saveSignal);
