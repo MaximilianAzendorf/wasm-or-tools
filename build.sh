@@ -28,7 +28,7 @@ pushd wasmbuild
     cmake -DCMAKE_TOOLCHAIN_FILE=${EMSCRIPTEN_CMAKE_PATH} .. -DPTHREAD=ON -DBUILD_DEPS=ON -DBUILD_SAMPLES=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=./install
     # cmake -DCMAKE_TOOLCHAIN_FILE=${EMSCRIPTEN_CMAKE_PATH} .. -DBUILD_DEPS=OFF -DBUILD_ZLIB=ON -DBUILD_glog=ON -DBUILD_SAMPLES=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF
 
-    patch _deps/clp-src/Clp/src/ClpSolve.cpp ../ClpSolve.cpp.patch
+    patch --forward _deps/clp-src/Clp/src/ClpSolve.cpp ../ClpSolve.cpp.patch
 
     # Start the actual build.
     echo "Building project ..."
